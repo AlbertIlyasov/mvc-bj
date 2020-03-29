@@ -3,23 +3,24 @@ Example: http://mvc-bj.11121.ru/
 
 ## Create form
 Model of form:
-`class TaskForm extends \MVC\Form
+```php
+class TaskForm extends \MVC\Form
 {
     protected $username;
     protected $email;
     protected $descr;
-``     
+
     protected $labels = [
         'username' => 'Username',
         'email'    => 'E-mail',
         'descr'    => 'Description',
     ];
-``
+
     protected $rules = [
         [['username','email','descr'], 'required'],
         ['email', 'email'],
     ];
-``
+
     public function __construct()
     {
         parent::__construct();
@@ -34,25 +35,34 @@ Model of form:
             'descr',
         ];
     }
-}`
+}
+```
 
 2 ways in view:
 Full:
-`    <?= $this->buildBeginForm() ?>
+```php
+    <?= $this->buildBeginForm() ?>
         <?= $this->buildInput('username', $form) ?>
         <?= $this->buildInput('email', $form, 'email') ?>
         <?= $this->buildInput('descr', $form, 'textarea') ?>
         <?= $this->buildSubmitButton('Сохранить') ?>
-    <?= $this->buildEndForm() ?>`
+    <?= $this->buildEndForm() ?>
+```
 Short:
-`<?= $this->buildForm($form, [['username'], ['email', 'email'], ['descr', 'textarea']], 'Сохранить') ?>`
+```php
+<?= $this->buildForm($form, [['username'], ['email', 'email'], ['descr', 'textarea']], 'Сохранить') ?>
+```
 
 ## Create collection
-`class TaskCollection extends \MVC\Collection {}`
+```php
+class TaskCollection extends \MVC\Collection {}
+```
 
 ## Grid
-`<?
+```php
+<?
 $dataProvider = new DataProvider(new TaskCollection);
+
 $columns = [
     [
         'attr'  => 'username',
@@ -81,5 +91,8 @@ $columns = [
     ],
 ];
 ?>
+
+
 <?= $this->buildGrid($dataProvider->getData(), $columns) ?>
-<?= $dataProvider->pagination->render() ?>`
+<?= $dataProvider->pagination->render() ?>
+```
