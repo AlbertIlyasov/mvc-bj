@@ -8,6 +8,8 @@ class Collection
     private $sort;
     private $limit;
     private $offset;
+    private $placeholders = [];
+    private $fields;
 
     public function getTable(): string
     {
@@ -25,10 +27,35 @@ class Collection
         return $this;
     }
 
-    public function setSort(string $field, ?int $direction = SORT_DESC): self
+    public function setSort(string $field, ?int $direction = SORT_ASC): bool
     {
-        $this->sort[$field] = SORT_DESC == $direction ? SORT_DESC : SORT_ASC;
-        return $this;
+        if (!$this->validateField($field)) {
+            return false;
+        }
+        $this->sort[$field] = SORT_DESC == $direction ? 'desc' : '';
+        return true;
+    }
+
+    private function validateField(string $field): bool
+    {
+        return in_array($field, $this->getFields());
+    }
+
+    private function getFields(): array
+    {
+        if (null !== $this->fields) {
+            return $this->fields;
+        }
+        $this->fields = array_column(
+            App::get()
+                ->getDb()
+                ->query(
+                    sprintf('SHOW COLUMNS FROM `%s`', $this->getTable())
+                )
+                ->fetchAll(),
+            'Field'
+        );
+        return $this->fields;
     }
 
     public function all(): array
@@ -41,7 +68,9 @@ class Collection
             $this->buildLimit()
         );
         $rows = [];
-        foreach (App::get()->getDb()->query($sql) as $row) {
+        $sth = App::get()->getDb()->prepare($sql);
+        $sth->execute($this->buildPlaceholders());
+        while ($row = $sth->fetch()) {
             $rows[] = $row;
         }
         return $rows;
@@ -50,10 +79,9 @@ class Collection
     public function count(): int
     {
         $sql = sprintf(
-            'SELECT COUNT(*) as count FROM %s %s %s',
+            'SELECT COUNT(*) as count FROM %s %s',
             $this->getTable(),
-            $this->buildWhere(),
-            $this->buildSort()
+            $this->buildWhere()
         );
         return $this->count = App::get()->getDb()->query($sql)->fetch()['count'];
     }
@@ -63,14 +91,35 @@ class Collection
         return '';
     }
 
+    private function addPlaceholder(string $name, ?string $value = null): self
+    {
+        $this->placeholders[$name] = $value ?? $name;
+        return $this;
+    }
+
+    private function removePlaceholder(string $name): self
+    {
+        unset($this->placeholders[$name]);
+        return $this;
+    }
+
+    private function buildPlaceholders(): array
+    {
+        $result = [];
+        foreach ($this->placeholders as $name => $value) {
+            $result[':' . $name] = $value;
+        }
+        return $result;
+    }
+
     public function buildSort(): string
     {
-        if (empty($this->sort)) {
+        if (!$this->sort) {
             return '';
         }
         $sql = '';
         foreach ($this->sort as $field => $direction) {
-            $sql .= sprintf('`%s` %s', $field, SORT_DESC == $direction ? 'desc' : '');
+            $sql .= sprintf('`%s` %s', $field, $direction);
         }
         return 'ORDER BY ' . $sql;
     }

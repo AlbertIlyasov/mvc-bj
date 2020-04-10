@@ -64,8 +64,12 @@ class Request implements RequestInterface
         if (2 != count($sort)) {
             return;
         }
-        $direction = 'desc' == array_pop($sort) ? SORT_DESC : SORT_ASC;
-        $this->sort = [implode('_', $sort) => $direction];
+        $direction = 'desc' == $sort[1] ? SORT_DESC : SORT_ASC;
+        $field = $sort[0];
+        if (!preg_match('/^[A-z0-9_]+$/', $field)) {
+            return;
+        }
+        $this->sort = [$field => $direction];
     }
 
     private function parsePage(): void
