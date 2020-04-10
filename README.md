@@ -61,8 +61,6 @@ class TaskCollection extends \MVC\Collection {}
 ## Grid
 ```php
 <?
-$dataProvider = new DataProvider(new TaskCollection);
-
 $columns = [
     [
         'attr'  => 'username',
@@ -92,6 +90,6 @@ $columns = [
 ];
 ?>
 
-
+$data = (new DataProvider(new TaskCollection))->getData();
 <?= $this->buildGrid($data, $columns) ?>
 ```
