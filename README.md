@@ -93,6 +93,5 @@ $columns = [
 ?>
 
 
-<?= $this->buildGrid($dataProvider->getData(), $columns) ?>
-<?= $dataProvider->pagination->render() ?>
+<?= $this->buildGrid($data, $columns) ?>
 ```

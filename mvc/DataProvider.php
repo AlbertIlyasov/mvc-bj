@@ -30,6 +30,9 @@ class DataProvider
             [$field, $direction] = each($sort);
             $this->collection->setSort($field, $direction);
         }
-        return $this->collection->all();
+        return [
+            'total' => $this->collection->count(),
+            'data'  => $this->collection->all(),
+        ];
     }
 }

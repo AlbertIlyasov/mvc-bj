@@ -51,7 +51,13 @@ class View
         if (!$columns) {
             return '';
         }
-        return '<table class="table table-striped">' . $this->buildHead($columns) . $this->buildBody($data, $columns) . '</table>';
+        $pagination = new Pagination($this->config, $this->request, $data['total'], $this->url);
+
+        return '<table class="table table-striped">'
+            . $this->buildHead($columns)
+            . $this->buildBody($data['data'], $columns)
+            . '</table>'
+            . $pagination->render();
     }
 
     private function buildHead(array $columns): string

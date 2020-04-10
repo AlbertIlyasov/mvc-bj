@@ -8,7 +8,6 @@ class Pagination
 {
     private $config;
     private $request;
-    private $count;
     private $pages;
     private $url;
 
@@ -20,14 +19,19 @@ class Pagination
     ) {
         $this->config  = $config;
         $this->request = $request;
-        $this->count   = $count;
+        $this->setPages($count);
         $this->url   = $url;
     }
 
-    public function validate(array $data = []): bool
+    private function setPages(int $count): self
     {
         $limit = $this->config['gridSize'];
-        $this->pages = ceil($this->count/$limit) ?: 1;
+        $this->pages = ceil($count/$limit) ?: 1;
+        return $this;
+    }
+
+    public function validate(): bool
+    {
         return $this->request->page <= $this->pages && $this->request->page >= 1;
     }
 

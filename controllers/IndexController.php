@@ -17,8 +17,8 @@ class IndexController extends \MVC\Controllers\Controller
             return $this->NotFoundAction();
         }
         $this->render('list', [
-            'dataProvider' => $dataProvider,
-            'isAdmin'      => $this->session->isAdmin(),
+            'data'    => $dataProvider->getData(),
+            'isAdmin' => $this->session->isAdmin(),
         ]);
     }
 
